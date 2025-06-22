@@ -2,6 +2,7 @@ import React from 'react';
 import { Container } from 'react-bootstrap';
 import { BrowserRouter as Router, Routes, Route,Navigate } from 'react-router-dom';
 import LoginPage from '../pages/LoginPage';
+import HomeScreen from '../pages/HomeScreen';
 import Header from '../pages/header';
 
 const AppRoutes = () => (
@@ -9,8 +10,8 @@ const AppRoutes = () => (
     <Header></Header> 
      <Container>
         <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/homescreen" element={<HomeScreen />} />
+      <Route path="*" element={<Navigate to="/homescreen" replace />} />
       {/* Add more routes here */}
     </Routes>
      </Container>
