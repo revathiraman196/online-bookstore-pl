@@ -16,7 +16,7 @@ describe('booksSlice reducer', () => {
 
   it('should handle fetchBooksSuccess', () => {
     const mockBooks: Book[] = [
-      { id: 1, name: 'Book One', author: 'Author A', price: 10 },
+      { id: 1, title: 'Book One', author: 'Author A', price: 10 },
     ];
     const action = fetchBooksSuccess(mockBooks);
     const state = booksReducer({ ...initialState, loading: true }, action);

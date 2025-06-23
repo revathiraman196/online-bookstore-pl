@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navbar, Nav, Container, Button, Offcanvas, ListGroup } from 'react-bootstrap';
+import { Navbar, Nav, Container, Button, Offcanvas, ListGroup, Row, Col } from 'react-bootstrap';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { removeFromCart } from '../features/cart/cartSlice';
@@ -8,13 +8,31 @@ import { updateCartQuantityAsync } from '../features/cart/cartThunks';
 const Header: React.FC = () => {
   const [showCart, setShowCart] = useState(false);
   const cartItems = useAppSelector((state) => state.cart.items);
+  const { books } = useAppSelector(state => state.books);
   const dispatch = useAppDispatch();
 
   const toggleCart = () => setShowCart(!showCart);
+
+  const getBookDetails = (bookId: number) => books.find(b => b.id === bookId);
+
+  const getTotal = () => {
+    return cartItems.reduce((sum, item) => {
+      const book = getBookDetails(item.bookId);
+      return sum + (book?.price || 0) * item.quantity;
+    }, 0).toFixed(2);
+  };
+  const handleIncrement = (bookId: number, currentQty: number) => {
+    dispatch(updateCartQuantityAsync({ bookId, quantity: currentQty + 1 }));
+  };
+
+  const handleDecrement = (bookId: number, currentQty: number) => {
+    if (currentQty > 1) {
+      dispatch(updateCartQuantityAsync({ bookId, quantity: currentQty - 1 }));
+    }
+  };
   const handleRemove = (bookId: number) => {
     dispatch(removeFromCart(bookId));
   };
-
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
@@ -36,59 +54,62 @@ const Header: React.FC = () => {
           {cartItems.length === 0 ? (
             <p>Your cart is empty.</p>
           ) : (
-            <ListGroup>
-              {cartItems.map((item) => (
-                <ListGroup.Item
-                  key={item.bookId}
-                  className="d-flex justify-content-between align-items-center"
-                >
-                  <div>
-                    <strong>Book ID:</strong> {item.bookId}
-                    
-                  </div>
+            <>
+              <ListGroup variant="flush">
+                {cartItems.map((item) => {
+                  const book = getBookDetails(item.bookId);
+                  if (!book) return null;
 
-                  <div className="d-flex align-items-center">
-                                        <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="rounded-circle me-2"
-                      onClick={() =>
-                        dispatch(updateCartQuantityAsync({ bookId: item.bookId, quantity: item.quantity - 1 }))
-                      }
-                      disabled={item.quantity <= 1}
-                    >
-                      −
-                    </Button>
+                  const itemTotal = (book.price * item.quantity).toFixed(2);
 
-                    <span className="mx-2">{item.quantity}</span>
+                  return (
+                    <ListGroup.Item key={item.bookId} className="py-3">
+                      <Row className="align-items-center">
+                        <Col xs={8}>
+                          <div className="fw-bold">{book.title}</div>
+                          <div className="text-muted small">Author: {book.author}</div>
+                          <div className="text-muted small">Price: ${book.price.toFixed(2)}</div>
+                          <div className="text-muted small">Total: ${itemTotal}</div>
+                        </Col>
+                        <Col xs="auto" className="d-flex align-items-center">
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            className="rounded-circle me-2"
+                            onClick={() => handleDecrement(item.bookId, item.quantity)}
+                            disabled={item.quantity <= 1}
+                          >
+                            −
+                          </Button>
+                          <span>{item.quantity}</span>
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            className="rounded-circle ms-2 me-3"
+                            onClick={() => handleIncrement(item.bookId, item.quantity)}
+                          >
+                            +
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => handleRemove(item.bookId)}
+                            aria-label={`Remove book ${item.bookId} from cart`}
+                          >
+                            <i className="bi bi-trash fs-5"></i>
+                          </Button>
+                        </Col>
+                      </Row>
+                    </ListGroup.Item>
+                  );
+                })}
+              </ListGroup>
 
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="rounded-circle me-2"
-                      onClick={() =>
-                        dispatch(updateCartQuantityAsync({ bookId: item.bookId, quantity: item.quantity + 1 }))
-                      }
-                    >
-                      +
-                    </Button>
-
-
-                    {/* Delete (Bin icon only) */}
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => dispatch(removeFromCart(item.bookId))}
-                      aria-label={`Remove book ${item.bookId} from cart`}
-                    >
-                      <i className="bi bi-trash fs-5"></i>
-                    </Button>
-                  </div>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-
-
+              <hr />
+              <div className="text-end fw-bold">
+                Total: ${getTotal()}
+              </div>
+            </>
           )}
         </Offcanvas.Body>
       </Offcanvas>

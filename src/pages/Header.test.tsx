@@ -4,12 +4,18 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Header from './header';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import cartReducer from '../features/cart/cartSlice';
-import { CartState } from '../features/cart/cartSlice';
+import cartReducer, { CartState } from '../features/cart/cartSlice';
+import bookReducer, { BooksState } from '../features/books/booksSlice';
 
-const renderWithStore = (preloadedState: { cart: CartState }) => {
+const renderWithStore = (preloadedState: {
+  cart: CartState;
+  books: BooksState;
+}) => {
   const store = configureStore({
-    reducer: { cart: cartReducer },
+    reducer: {
+      cart: cartReducer,
+      books: bookReducer,
+    },
     preloadedState,
   });
 
@@ -28,6 +34,14 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
+      
+    books: {
+      books: [
+        { id: 1, title: 'Domain-Driven Design', author: 'Eric Evans', price: 39.99 },
+      ],
+      loading: false,
+      error: null,
+    },
     });
 
     expect(screen.getByText(/bookstore/i)).toBeInTheDocument();
@@ -44,6 +58,14 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
+      
+  books: {
+    books: [
+      { id: 1, title: 'Clean Architecture', author: 'Robert C. Martin', price: 34.99 },
+    ],
+    loading: false,
+    error: null,
+  },
     });
 
     expect(screen.getByRole('button', { name: /cart/i })).toHaveTextContent('Cart (5)');
@@ -56,13 +78,21 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
+      
+  books: {
+    books: [
+      { id: 1, title: 'Clean Architecture', author: 'Robert C. Martin', price: 34.99 },
+    ],
+    loading: false,
+    error: null,
+  },
     });
 
     const cartButton = screen.getByRole('button', { name: /cart/i });
     fireEvent.click(cartButton);
 
     expect(screen.getByText(/your cart/i)).toBeInTheDocument();
-    expect(screen.getByText(/book id: 1/i)).toBeInTheDocument();
+    expect(screen.getByText(/Author: Robert C. Martin/i)).toBeInTheDocument();
   });
 
   it('shows "Your cart is empty" when no items are in the cart', () => {
@@ -72,6 +102,14 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
+      
+  books: {
+    books: [
+      { id: 1, title: 'Clean Architecture', author: 'Robert C. Martin', price: 34.99 },
+    ],
+    loading: false,
+    error: null,
+  },
     });
 
     fireEvent.click(screen.getByRole('button', { name: /cart/i }));

@@ -48,8 +48,8 @@ const renderWithStore = (preloadedState?: any) => {
 
 describe('HomeScreen', () => {
   const mockBooks = [
-    { id: 1, name: 'Book One', author: 'Author One', price: 10 },
-    { id: 2, name: 'Book Two', author: 'Author Two', price: 20 },
+    { id: 1, title: 'Book One', author: 'Author One', price: 10 },
+    { id: 2, title: 'Book Two', author: 'Author Two', price: 20 },
   ];
 
   beforeEach(() => {
@@ -97,7 +97,7 @@ describe('HomeScreen', () => {
         error: 'Failed to add to cart',
       },
       books: {
-        books: [{ id: 1, name: 'Book One', author: 'Author One', price: 10 }],
+        books: [{ id: 1, title: 'Book One', author: 'Author One', price: 10 }],
         loading: false,
         error: null,
       },

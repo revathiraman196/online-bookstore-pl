@@ -42,7 +42,7 @@ const HomeScreen: React.FC = () => {
           <Col key={book.id}>
             <Card className="h-100 shadow-sm">
               <Card.Body className="d-flex flex-column">
-                <Card.Title>{book.name}</Card.Title>
+                <Card.Title>{book.title}</Card.Title>
                 <Card.Subtitle className="mb-2 text-muted">{book.author}</Card.Subtitle>
                 <Card.Text className="mb-4">${book.price.toFixed(2)}</Card.Text>
                <Button
@@ -50,7 +50,7 @@ const HomeScreen: React.FC = () => {
                   className="mt-auto"
                   onClick={() => handleAddToCart(book.id)}
                   disabled={cartStatus === 'loading'}
-                  aria-label={`Add ${book.name} to cart`}
+                  aria-label={`Add ${book.title} to cart`}
                 >
                   {cartStatus === 'loading' ? (
                     <>

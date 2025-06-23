@@ -3,12 +3,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Book {
   id: number;
-  name: string;
+  title: string;
   author: string;
   price: number;
 }
 
-interface BooksState {
+export interface BooksState {
   books: Book[];
   loading: boolean;
   error: string | null;

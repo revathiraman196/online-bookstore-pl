@@ -7,8 +7,8 @@ jest.mock('./axiosInstance');
 
 describe('fetchBooksApi', () => {
   const mockBooks: Book[] = [
-    { id: 1, name: 'Book One', author: 'Author One', price: 10 },
-    { id: 2, name: 'Book Two', author: 'Author Two', price: 15 },
+    { id: 1, title: 'Book One', author: 'Author One', price: 10 },
+    { id: 2, title: 'Book Two', author: 'Author Two', price: 15 },
   ];
 
   it('fetches books successfully', async () => {
