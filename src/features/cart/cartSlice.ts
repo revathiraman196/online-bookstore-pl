@@ -16,7 +16,12 @@ const initialState: CartState = {
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
-  reducers: {},
+  reducers: {
+    // New reducer for removing an item by bookId
+    removeFromCart(state, action: PayloadAction<number>) {
+      state.items = state.items.filter(item => item.bookId !== action.payload);
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addToCartAsync.pending, (state) => {
@@ -38,5 +43,6 @@ const cartSlice = createSlice({
       });
   },
 });
-
+// Export the new action so you can dispatch it
+export const { removeFromCart } = cartSlice.actions;
 export default cartSlice.reducer;
