@@ -8,13 +8,15 @@ import Header from '../pages/header';
 const AppRoutes = () => (
   <Router>
     <Header></Header> 
-     <Container>
+     <main className="p-4">
+         <Container>
         <Routes>
       <Route path="/homescreen" element={<HomeScreen />} />
       <Route path="*" element={<Navigate to="/homescreen" replace />} />
       {/* Add more routes here */}
     </Routes>
      </Container>
+     </main>   
     
   </Router>
 );

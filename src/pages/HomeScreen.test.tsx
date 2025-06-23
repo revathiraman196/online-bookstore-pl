@@ -1,15 +1,15 @@
+// src/pages/HomeScreen.test.tsx
+
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import HomeScreen from './HomeScreen';
 import { Provider } from 'react-redux';
-import { store } from '../app/store';
-import axiosInstance from '../services/axiosInstance';
-import * as cartThunks from '../features/cart/cartThunks';
-import { configureStore } from '@reduxjs/toolkit'; 
+import { configureStore, combineReducers } from '@reduxjs/toolkit'; 
 import cartReducer from '../features/cart/cartSlice';
-import booksReducer from '../features/books/booksSlice'
+import booksReducer from '../features/books/booksSlice';
+import axiosInstance from '../services/axiosInstance';
 
-// Suppress console.error during tests to avoid noise
+// Suppress console.error during tests
 beforeAll(() => {
   jest.spyOn(console, 'error').mockImplementation(() => {});
 });
@@ -17,7 +17,7 @@ afterAll(() => {
   (console.error as jest.Mock).mockRestore();
 });
 
-// Mock axiosInstance globally
+// ✅ Mock axiosInstance globally
 jest.mock('../services/axiosInstance', () => ({
   __esModule: true,
   default: {
@@ -27,18 +27,15 @@ jest.mock('../services/axiosInstance', () => ({
   },
 }));
 
-describe('HomeScreen', () => {
-  const mockBooks = [
-    { id: 1, name: 'Book One', author: 'Author One', price: 10 },
-    { id: 2, name: 'Book Two', author: 'Author Two', price: 20 },
-  ];
-  // Create a test store with error state preset
-  const renderWithStore = (preloadedState: any) => {
+// ✅ Helper to create a test store with optional preloaded state
+const renderWithStore = (preloadedState?: any) => {
+  const rootReducer = combineReducers({
+    cart: cartReducer,
+    books: booksReducer,
+  });
+
   const store = configureStore({
-    reducer: {
-      cart: cartReducer,
-      books: booksReducer,
-    },
+    reducer: rootReducer,
     preloadedState,
   });
 
@@ -49,17 +46,18 @@ describe('HomeScreen', () => {
   );
 };
 
+describe('HomeScreen', () => {
+  const mockBooks = [
+    { id: 1, name: 'Book One', author: 'Author One', price: 10 },
+    { id: 2, name: 'Book Two', author: 'Author Two', price: 20 },
+  ];
 
   beforeEach(() => {
     (axiosInstance.get as jest.Mock).mockResolvedValue({ data: mockBooks });
   });
 
   it('renders book list after fetch', async () => {
-    render(
-      <Provider store={store}>
-        <HomeScreen />
-      </Provider>
-    );
+    renderWithStore();
 
     await waitFor(() => {
       expect(screen.getByText('Book One')).toBeInTheDocument();
@@ -70,30 +68,19 @@ describe('HomeScreen', () => {
   it('shows error if fetch fails', async () => {
     (axiosInstance.get as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    render(
-      <Provider store={store}>
-        <HomeScreen />
-      </Provider>
-    );
+    renderWithStore();
 
-    await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Network error');
-    });
+    expect(await screen.findByRole('alert')).toHaveTextContent('Network error');
   });
 
   it('disables Add to Cart button while loading', async () => {
-    render(
-      <Provider store={store}>
-        <HomeScreen />
-      </Provider>
-    );
+    renderWithStore();
 
     await waitFor(() => {
       expect(screen.getByText('Book One')).toBeInTheDocument();
     });
 
     const button = screen.getByRole('button', { name: /add book one to cart/i });
-
     fireEvent.click(button);
 
     await waitFor(() => {
@@ -102,25 +89,20 @@ describe('HomeScreen', () => {
     });
   });
 
- 
-test('shows cart error message if adding to cart fails', async () => {
-  renderWithStore({
-    cart: {
-      items: [],
-      status: 'failed',
-      error: 'Failed to add to cart',
-    },
-    books: {
-      books: [
-        { id: 1, name: 'Book One', author: 'Author One', price: 10 }
-      ],
-      loading: false,
-      error: null,
-    },
+  it('shows cart error message if adding to cart fails', async () => {
+    renderWithStore({
+      cart: {
+        items: [],
+        status: 'failed',
+        error: 'Failed to add to cart',
+      },
+      books: {
+        books: [{ id: 1, name: 'Book One', author: 'Author One', price: 10 }],
+        loading: false,
+        error: null,
+      },
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to add to cart');
   });
-
-  // Assert that the alert is shown with correct error
-  expect(await screen.findByRole('alert')).toHaveTextContent('Failed to add to cart');
-});
-
 });
