@@ -1,7 +1,9 @@
 import axios from 'axios';
+const creds = `${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`;
+const authHeader = 'Basic ' + btoa(creds);
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8081/api/v1',
+  baseURL: process.env.REACT_APP_API_BASE_URL,
   timeout: 10_000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -9,8 +11,6 @@ const axiosInstance = axios.create({
 // Automatically add Basic Auth, but skip in Jest tests
 if (!process.env.JEST_WORKER_ID) {
   axiosInstance.interceptors.request.use((config) => {
-    const creds = 'katatest:katatest@123';
-    const authHeader = 'Basic ' + btoa(creds);
 
     if (config.headers) {
       // Try using .set() if available (AxiosHeaders)
