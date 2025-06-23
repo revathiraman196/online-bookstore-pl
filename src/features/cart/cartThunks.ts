@@ -37,3 +37,16 @@ export const deleteCartItemAsync = createAsyncThunk(
     }
   }
 );
+
+export const updateCartQuantityAsync = createAsyncThunk<
+  CartItem,
+  { bookId: number; quantity: number },
+  { rejectValue: string }
+>('cart/updateCartQuantity', async ({ bookId, quantity }, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.put(`/cart/items/${bookId}?quantity=${quantity}`);
+    return { bookId, quantity };
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data || err.message);
+  }
+});

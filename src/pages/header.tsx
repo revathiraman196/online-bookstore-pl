@@ -3,6 +3,7 @@ import { Navbar, Nav, Container, Button, Offcanvas, ListGroup } from 'react-boot
 import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { removeFromCart } from '../features/cart/cartSlice';
+import { updateCartQuantityAsync } from '../features/cart/cartThunks';
 
 const Header: React.FC = () => {
   const [showCart, setShowCart] = useState(false);
@@ -37,21 +38,57 @@ const Header: React.FC = () => {
           ) : (
             <ListGroup>
               {cartItems.map((item) => (
-                <ListGroup.Item key={item.bookId} className="d-flex justify-content-between align-items-center">
-                  <span>
-                    Book ID: {item.bookId} — Quantity: {item.quantity}
-                  </span>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => handleRemove(item.bookId)}
-                    aria-label={`Remove item ${item.bookId}`}
-                  >
-                    ❌
-                  </Button>
+                <ListGroup.Item
+                  key={item.bookId}
+                  className="d-flex justify-content-between align-items-center"
+                >
+                  <div>
+                    <strong>Book ID:</strong> {item.bookId}
+                    
+                  </div>
+
+                  <div className="d-flex align-items-center">
+                                        <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="rounded-circle me-2"
+                      onClick={() =>
+                        dispatch(updateCartQuantityAsync({ bookId: item.bookId, quantity: item.quantity - 1 }))
+                      }
+                      disabled={item.quantity <= 1}
+                    >
+                      −
+                    </Button>
+
+                    <span className="mx-2">{item.quantity}</span>
+
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="rounded-circle me-2"
+                      onClick={() =>
+                        dispatch(updateCartQuantityAsync({ bookId: item.bookId, quantity: item.quantity + 1 }))
+                      }
+                    >
+                      +
+                    </Button>
+
+
+                    {/* Delete (Bin icon only) */}
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => dispatch(removeFromCart(item.bookId))}
+                      aria-label={`Remove book ${item.bookId} from cart`}
+                    >
+                      <i className="bi bi-trash fs-5"></i>
+                    </Button>
+                  </div>
                 </ListGroup.Item>
               ))}
             </ListGroup>
+
+
           )}
         </Offcanvas.Body>
       </Offcanvas>

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { addToCartAsync, CartItem } from './cartThunks';
+import { addToCartAsync, CartItem , updateCartQuantityAsync} from './cartThunks';
 
 export interface CartState {
   items: CartItem[];
@@ -20,7 +20,7 @@ const cartSlice = createSlice({
     // New reducer for removing an item by bookId
     removeFromCart(state, action: PayloadAction<number>) {
       state.items = state.items.filter(item => item.bookId !== action.payload);
-    },
+    } 
   },
   extraReducers: (builder) => {
     builder
@@ -40,7 +40,13 @@ const cartSlice = createSlice({
       .addCase(addToCartAsync.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error?.message || 'Failed to add to cart';
-      });
+      })
+      .addCase(updateCartQuantityAsync.fulfilled, (state, action) => {
+        const item = state.items.find(i => i.bookId === action.payload.bookId);
+        if (item) {
+            item.quantity = action.payload.quantity;
+        }
+     });
   },
 });
 // Export the new action so you can dispatch it
