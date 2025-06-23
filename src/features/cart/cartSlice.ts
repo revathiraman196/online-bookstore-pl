@@ -34,7 +34,7 @@ const cartSlice = createSlice({
       })
       .addCase(addToCartAsync.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload || 'Failed to add to cart';
+        state.error = action.error?.message || 'Failed to add to cart';
       });
   },
 });

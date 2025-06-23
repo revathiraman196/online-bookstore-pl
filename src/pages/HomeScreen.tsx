@@ -1,15 +1,15 @@
-// src/features/books/BookList.tsx
 import React, { useEffect } from 'react';
 import { fetchBooksStart, fetchBooksSuccess, fetchBooksFailure, Book } from '../features/books/booksSlice';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
-import { store } from '../app/store';
 import { fetchBooksApi } from '../services/booksApi';
 import { Card, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
+import { addToCartAsync } from '../features/cart/cartThunks';
 
-const BookList = () => {
-  const dispatch = useAppDispatch()
+const HomeScreen: React.FC = () => {
+  const dispatch = useAppDispatch();
   const { books, loading, error } = useAppSelector(state => state.books);
+  const { status: cartStatus, error: cartError } = useAppSelector(state => state.cart);
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -25,6 +25,12 @@ const BookList = () => {
     loadBooks();
   }, [dispatch]);
 
+  const handleAddToCart = (bookId: number) => {
+    console.log("Clicked book:", bookId,cartStatus);
+    if (cartStatus === 'loading') return;
+    dispatch(addToCartAsync({ bookId, quantity: 1 }));
+  };
+
   if (loading) return <Spinner animation="border" role="status" aria-label="Loading"><span className="visually-hidden">Loading...</span></Spinner>;
   if (error) return <Alert variant="danger" role="alert">{error}</Alert>;
 
@@ -39,16 +45,35 @@ const BookList = () => {
                 <Card.Title>{book.name}</Card.Title>
                 <Card.Subtitle className="mb-2 text-muted">{book.author}</Card.Subtitle>
                 <Card.Text className="mb-4">${book.price.toFixed(2)}</Card.Text>
-                <Button variant="primary" className="mt-auto">
-                  Add to Cart
-                </Button>
+               <Button
+                  variant="primary"
+                  className="mt-auto"
+                  onClick={() => handleAddToCart(book.id)}
+                  disabled={cartStatus === 'loading'}
+                  aria-label={`Add ${book.name} to cart`}
+                >
+                  {cartStatus === 'loading' ? (
+                    <>
+                      <Spinner animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                      Adding...
+                    </>
+                  ) : (
+                    'Add to Cart'
+                  )}
+                </Button> 
               </Card.Body>
             </Card>
           </Col>
         ))}
       </Row>
+
+      {cartStatus === 'failed' && cartError && (
+        <Alert variant="danger" className="mt-3" role="alert" aria-live="assertive">
+          {cartError}
+        </Alert>
+      )}
     </>
   );
 };
 
-export default BookList;
+export default HomeScreen;
