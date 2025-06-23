@@ -3,7 +3,7 @@ import { fetchBooksStart, fetchBooksSuccess, fetchBooksFailure, Book } from '../
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { fetchBooksApi } from '../services/booksApi';
-import { Card, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
+import { Card, Row, Col, Button, Spinner, Alert, Container } from 'react-bootstrap';
 import { addToCartAsync } from '../features/cart/cartThunks';
 
 const HomeScreen: React.FC = () => {
@@ -35,9 +35,10 @@ const HomeScreen: React.FC = () => {
   if (error) return <Alert variant="danger" role="alert">{error}</Alert>;
 
   return (
-    <>
-      <h1>Book List</h1>
-      <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+    
+     <Container className="my-5">
+        <h2 className="mb-4">📖 Book List</h2>
+        <Row xs={1} sm={2} md={3} className="g-4">
         {books.map((book: Book) => (
           <Col key={book.id}>
             <Card className="h-100 shadow-sm">
@@ -72,7 +73,7 @@ const HomeScreen: React.FC = () => {
           {cartError}
         </Alert>
       )}
-    </>
+    </Container>
   );
 };
 

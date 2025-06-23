@@ -35,10 +35,10 @@ const Header: React.FC = () => {
   };
   return (
     <>
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar bg="dark" variant="dark" expand="lg" sticky="top" className="shadow">
         <Container>
-          <Navbar.Brand href="/">Bookstore</Navbar.Brand>
-          <Nav className="ms-auto">
+          <Navbar.Brand href="#">📚 Bookstore</Navbar.Brand>
+          <Nav className="ml-auto">
             <Button variant="outline-light" onClick={toggleCart}>
               🛒 Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
             </Button>
