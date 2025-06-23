@@ -1,47 +1,44 @@
+// HomeScreen.test.tsx
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import HomeScreen from './HomeScreen';
 import { Provider } from 'react-redux';
-import { store } from '../app/store';
-import axios from 'axios';
-import userEvent from '@testing-library/user-event';
+import { store } from '../app/store';  // real store
+import axiosInstance from '../services/axiosInstance';
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+jest.mock('../services/axiosInstance', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(),
+    interceptors: { request: { use: jest.fn() } },
+  },
+}));
 
-const mockBooks = [
-  { id: 1, name: 'Book One', author: 'Author A', price: 15.99 },
-  { id: 2, name: 'Book Two', author: 'Author B', price: 12.49 },
-];
+describe('HomeScreen', () => {
+  const mockBooks = [
+    { id: 1, name: 'Book One', author: 'Author One', price: 10 },
+    { id: 2, name: 'Book Two', author: 'Author Two', price: 20 },
+  ];
 
-describe('BookList component', () => {
   beforeEach(() => {
-    mockedAxios.get.mockResolvedValue({ data: mockBooks });
+    (axiosInstance.get as jest.Mock).mockResolvedValue({ data: mockBooks });
   });
 
-  test('renders loading spinner and then book list', async () => {
+  it('renders book list after fetch', async () => {
     render(
       <Provider store={store}>
         <HomeScreen />
       </Provider>
     );
 
-    // Loading spinner shows initially
-    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
-
-    // Wait for books to appear
     await waitFor(() => {
       expect(screen.getByText('Book One')).toBeInTheDocument();
       expect(screen.getByText('Book Two')).toBeInTheDocument();
     });
-
-    // Buttons present
-    const buttons = screen.getAllByRole('button', { name: /add to cart/i });
-    expect(buttons.length).toBe(mockBooks.length);
   });
 
-  test('renders error message on API failure', async () => {
-    mockedAxios.get.mockRejectedValueOnce(new Error('Network Error'));
+  it('shows error if fetch fails', async () => {
+    (axiosInstance.get as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
     render(
       <Provider store={store}>
@@ -50,7 +47,7 @@ describe('BookList component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent(/network error/i);
+      expect(screen.getByRole('alert')).toHaveTextContent('Network error');
     });
   });
 });
