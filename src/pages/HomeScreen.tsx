@@ -1,18 +1,38 @@
-import { Card, Col, Row,Button} from 'react-bootstrap';
-const HomeScreen = () => {
+// src/features/books/BookList.tsx
+import React, { useEffect } from 'react';
+import { fetchBooksStart, fetchBooksSuccess, fetchBooksFailure, Book } from '../features/books/booksSlice';
+import { useAppDispatch } from '../hooks/useAppDispatch';
+import { useAppSelector } from '../hooks/useAppSelector';
+import { store } from '../app/store';
+import { fetchBooksApi } from '../services/booksApi';
+import { Card, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
 
-    const books = [
-  { id: 1, name: 'Book One', author: 'Author A', price: 15.99 },
-  { id: 2, name: 'Book Two', author: 'Author B', price: 12.49 },
-  { id: 3, name: 'Book Three', author: 'Author C', price: 19.99 },
-  // add more books...
-];
+const BookList = () => {
+  const dispatch = useAppDispatch()
+  const { books, loading, error } = useAppSelector(state => state.books);
 
-    return (
-        <>
-        <h1>Latestest Books</h1>
-        <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-        {books.map((book) => (
+  useEffect(() => {
+    const loadBooks = async () => {
+      dispatch(fetchBooksStart());
+      try {
+        const data = await fetchBooksApi();
+        dispatch(fetchBooksSuccess(data));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        dispatch(fetchBooksFailure(message));
+      }
+    };
+    loadBooks();
+  }, [dispatch]);
+
+  if (loading) return <Spinner animation="border" role="status" aria-label="Loading"><span className="visually-hidden">Loading...</span></Spinner>;
+  if (error) return <Alert variant="danger" role="alert">{error}</Alert>;
+
+  return (
+    <>
+      <h1>Book List</h1>
+      <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+        {books.map((book: Book) => (
           <Col key={book.id}>
             <Card className="h-100 shadow-sm">
               <Card.Body className="d-flex flex-column">
@@ -27,7 +47,8 @@ const HomeScreen = () => {
           </Col>
         ))}
       </Row>
-        </>
-    );
+    </>
+  );
 };
-export default HomeScreen;
+
+export default BookList;
