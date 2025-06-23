@@ -1,5 +1,5 @@
 // src/features/cart/cartSlice.test.ts
-import reducer, { CartState } from './cartSlice';
+import reducer, { CartState,removeFromCart } from './cartSlice';
 import { addToCartAsync, CartItem } from './cartThunks';
 
 describe('cartSlice reducer', () => {
@@ -61,5 +61,21 @@ describe('cartSlice reducer', () => {
   expect(state.status).toBe('failed');
   expect(state.error).toBe('Rejected'); // <-- this matches the reducer
 });
+it('should handle removeFromCart', () => {
+    const prevState: CartState = {
+      items: [
+        { bookId: 1, quantity: 2 },
+        { bookId: 2, quantity: 3 },
+      ],
+      status: 'idle',
+      error: null,
+    };
+
+    const action = removeFromCart(1);
+    const state = reducer(prevState, action);
+
+    expect(state.items).toEqual([{ bookId: 2, quantity: 3 }]);
+  });
+
 
 });
