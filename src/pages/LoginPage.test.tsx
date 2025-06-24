@@ -9,7 +9,7 @@ import authReducer from '../features/auth/authSlice';
 import LoginScreen from './LoginPage'; // adjust path if needed
 import axiosInstance from '../services/axiosInstance';
 
-// ✅ Mock only the API, not the thunk
+// Mock only the API, not the thunk
 jest.mock('../services/axiosInstance', () => ({
   __esModule: true,
   default: {
@@ -18,7 +18,7 @@ jest.mock('../services/axiosInstance', () => ({
   },
 }));
 
-// ✅ Reusable render helper
+// Reusable render helper
 const renderWithStore = (preloadedState?: any) => {
   const rootReducer = combineReducers({
     auth: authReducer,

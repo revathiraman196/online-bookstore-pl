@@ -7,7 +7,7 @@ export interface AuthState {
 export interface UserResponse {
   id: number;
   username: string;
-  name: string;
+  email: string;
   token: string;  // e.g., JWT token
   // Add any other fields your API returns
 }
