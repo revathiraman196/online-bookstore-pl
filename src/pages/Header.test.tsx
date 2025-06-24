@@ -1,13 +1,14 @@
-// src/components/Header.test.tsx
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from './header';
 import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import cartReducer from '../features/cart/cartSlice';
-import bookReducer from '../features/books/booksSlice';
-import authReducer from '../features/auth/authSlice';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import { RootState } from '../app/store';
 import { MemoryRouter } from 'react-router-dom';
+import cartReducer from '../features/cart/cartSlice';
+import booksReducer from '../features/books/booksSlice';
+import axiosInstance from '../services/axiosInstance';
+import authReducer from '../features/auth/authSlice';
 
 // Mock useNavigate from react-router-dom
 const mockNavigate = jest.fn();
@@ -17,13 +18,33 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const renderWithStore = (preloadedState) => {
+// Suppress console.error during tests
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+  (console.error as jest.Mock).mockRestore();
+});
+
+// ✅ Mock axiosInstance globally
+jest.mock('../services/axiosInstance', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(),
+    post: jest.fn(),
+    interceptors: { request: { use: jest.fn() } },
+  },
+}));
+
+const renderWithStore = (preloadedState?: any) => {
+  const rootReducer = combineReducers({
+    cart: cartReducer,
+    books: booksReducer,
+    auth: authReducer,
+  });
+
   const store = configureStore({
-    reducer: {
-      cart: cartReducer,
-      books: bookReducer,
-      auth: authReducer,
-    },
+    reducer: rootReducer,
     preloadedState,
   });
 
@@ -48,7 +69,6 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
-      
       books: {
         books: [
           { id: 1, title: 'Domain-Driven Design', author: 'Eric Evans', price: 39.99 },
@@ -78,7 +98,6 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
-      
       books: {
         books: [
           { id: 1, title: 'Clean Architecture', author: 'Robert C. Martin', price: 34.99 },
@@ -104,7 +123,6 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
-      
       books: {
         books: [
           { id: 1, title: 'Clean Architecture', author: 'Robert C. Martin', price: 34.99 },
@@ -134,7 +152,6 @@ describe('Header', () => {
         status: 'idle',
         error: null,
       },
-      
       books: {
         books: [
           { id: 1, title: 'Clean Architecture', author: 'Robert C. Martin', price: 34.99 },
