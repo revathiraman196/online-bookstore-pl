@@ -8,6 +8,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -16,19 +17,33 @@ const LoginScreen = () => {
 
   useEffect(() => {
     if (user) {
-      // Redirect after login
       navigate('/');
     }
   }, [user, navigate]);
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Simple validation
+    if (!username || !password) {
+      setValidationError('Username and password are required');
+      return;
+    }
+
+    if (password.length < 6) {
+      setValidationError('Password must be at least 6 characters');
+      return;
+    }
+
+    setValidationError('');
     dispatch(loginUser({ username, password }));
   };
 
   return (
     <Container style={{ maxWidth: '400px', marginTop: '3rem' }}>
       <h2 className="mb-4 text-center">Sign In</h2>
+      
+      {validationError && <Alert variant="warning">{validationError}</Alert>}
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={submitHandler}>
@@ -40,7 +55,6 @@ const LoginScreen = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
-            required
           />
         </Form.Group>
 
@@ -52,7 +66,6 @@ const LoginScreen = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
-            required
           />
         </Form.Group>
 
