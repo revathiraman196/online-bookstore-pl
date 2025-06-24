@@ -5,6 +5,7 @@ import { loginUser } from '../features/auth/authThunks';
 import { RootState, AppDispatch } from '../app/store';
 import { useNavigate, Link } from 'react-router-dom';
 
+
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -12,6 +13,7 @@ const LoginScreen = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
 
   const { user, loading, error } = useSelector((state: RootState) => state.auth);
 
@@ -38,6 +40,8 @@ const LoginScreen = () => {
     setValidationError('');
     dispatch(loginUser({ username, password }));
   };
+
+ 
 
   return (
     <Container style={{ maxWidth: '400px', marginTop: '3rem' }}>
@@ -71,14 +75,14 @@ const LoginScreen = () => {
 
         <Button type="submit" variant="primary" disabled={loading} className="w-100">
           {loading ? <Spinner animation="border" size="sm" /> : 'Sign In'}
-        </Button>
+                          </Button>
       </Form>
 
       <Row className="py-3">
         <Col className="text-center">
           New customer? <Link to="/signup">Register here</Link>
-        </Col>
-      </Row>
+                        </Col>
+                      </Row>
     </Container>
   );
 };

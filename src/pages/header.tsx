@@ -5,6 +5,8 @@ import { useAppDispatch } from '../hooks/useAppDispatch';
 import { removeFromCart } from '../features/cart/cartSlice';
 import { updateCartQuantityAsync } from '../features/cart/cartThunks';
 import { LinkContainer } from 'react-router-bootstrap';
+import {logout} from '../features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const [showCart, setShowCart] = useState(false);
@@ -14,6 +16,7 @@ const Header: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const toggleCart = () => setShowCart(!showCart);
+  const navigate = useNavigate();
 
   const getBookDetails = (bookId: number) => books.find(b => b.id === bookId);
 
@@ -35,6 +38,10 @@ const Header: React.FC = () => {
   const handleRemove = (bookId: number) => {
     dispatch(removeFromCart(bookId));
   };
+   const handleLogout = () => {
+    dispatch(logout());
+    navigate('/homescreen'); 
+  };
 
  
 
@@ -44,17 +51,27 @@ const Header: React.FC = () => {
         <Container>
           <Navbar.Brand href="#">📚 Bookstore</Navbar.Brand>
           <Nav className="ml-auto">
-            <Button variant="outline-light" onClick={toggleCart}>
-              🛒 Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
-            </Button>
-            {!isAuthenticated && (
-          <LinkContainer to="/login">
-            <Nav.Link>
-              <i className="fas fa-user me-1"></i> Sign In
-            </Nav.Link>
-          </LinkContainer>
-        )}
-          </Nav>
+              <Button variant="outline-light" onClick={toggleCart}>
+                🛒 Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+              </Button>
+           {!isAuthenticated ? (
+        <LinkContainer to="/login">
+          <Nav.Link>
+            <i className="fas fa-user me-1"></i> Sign In
+          </Nav.Link>
+        </LinkContainer>
+      ) : (
+        <>
+          <Navbar.Text className="text-white">
+            Welcome, <strong>{user?.username}</strong>
+          </Navbar.Text>
+          <Button variant="outline-light" onClick={handleLogout}>
+            Logout
+          </Button>
+        </>
+      )}
+            </Nav>
+
         </Container>
       </Navbar>
 
