@@ -4,11 +4,13 @@ import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { removeFromCart } from '../features/cart/cartSlice';
 import { updateCartQuantityAsync } from '../features/cart/cartThunks';
+import { LinkContainer } from 'react-router-bootstrap';
 
 const Header: React.FC = () => {
   const [showCart, setShowCart] = useState(false);
   const cartItems = useAppSelector((state) => state.cart.items);
   const { books } = useAppSelector(state => state.books);
+  const { isAuthenticated, user } = useAppSelector(state => state.auth);
   const dispatch = useAppDispatch();
 
   const toggleCart = () => setShowCart(!showCart);
@@ -33,6 +35,9 @@ const Header: React.FC = () => {
   const handleRemove = (bookId: number) => {
     dispatch(removeFromCart(bookId));
   };
+
+ 
+
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg" sticky="top" className="shadow">
@@ -42,6 +47,13 @@ const Header: React.FC = () => {
             <Button variant="outline-light" onClick={toggleCart}>
               🛒 Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
             </Button>
+            {!isAuthenticated && (
+          <LinkContainer to="/login">
+            <Nav.Link>
+              <i className="fas fa-user me-1"></i> Sign In
+            </Nav.Link>
+          </LinkContainer>
+        )}
           </Nav>
         </Container>
       </Navbar>

@@ -6,7 +6,8 @@ import cartReducer from '../features/cart/cartSlice';
 export const store = configureStore({
   reducer: {
    books: booksReducer,
-   cart: cartReducer
+   cart: cartReducer,
+   auth:authReducer
   },
 });
 

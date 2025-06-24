@@ -6,15 +6,19 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import cartReducer, { CartState } from '../features/cart/cartSlice';
 import bookReducer, { BooksState } from '../features/books/booksSlice';
+import  authReducer from '../features/auth/authSlice';
+import { AuthState } from '../features/auth/types';
 
 const renderWithStore = (preloadedState: {
   cart: CartState;
   books: BooksState;
+  auth: AuthState;
 }) => {
   const store = configureStore({
     reducer: {
       cart: cartReducer,
       books: bookReducer,
+      auth: authReducer,
     },
     preloadedState,
   });
@@ -42,6 +46,12 @@ describe('Header', () => {
       loading: false,
       error: null,
     },
+    auth: {
+      isAuthenticated: false,
+      user: null,
+      loading: false,
+      error: null,
+    },
     });
 
     expect(screen.getByText(/bookstore/i)).toBeInTheDocument();
@@ -66,6 +76,12 @@ describe('Header', () => {
     loading: false,
     error: null,
   },
+  auth: {
+      isAuthenticated: true,
+      user: null,
+      loading: false,
+      error: null,
+    },
     });
 
     expect(screen.getByRole('button', { name: /cart/i })).toHaveTextContent('Cart (5)');
@@ -86,6 +102,12 @@ describe('Header', () => {
     loading: false,
     error: null,
   },
+  auth: {
+      isAuthenticated: false,
+      user: null,
+      loading: false,
+      error: null,
+    },
     });
 
     const cartButton = screen.getByRole('button', { name: /cart/i });
@@ -110,10 +132,39 @@ describe('Header', () => {
     loading: false,
     error: null,
   },
+  auth: {
+      isAuthenticated: false,
+      user: null,
+      loading: false,
+      error: null,
+    },
     });
 
     fireEvent.click(screen.getByRole('button', { name: /cart/i }));
 
     expect(screen.getByText(/your cart is empty/i)).toBeInTheDocument();
   });
+
+  it('shows "Sign In" link when user is not authenticated', () => {
+  renderWithStore({
+    cart: {
+      items: [],
+      status: 'idle',
+      error: null,
+    },
+    books: {
+      books: [],
+      loading: false,
+      error: null,
+    },
+    auth: {
+      isAuthenticated: false,
+      user: null,
+      loading: false,
+      error: null,
+    },
+  });
+
+  expect(screen.getByText(/sign in/i)).toBeInTheDocument();
+});
 });
